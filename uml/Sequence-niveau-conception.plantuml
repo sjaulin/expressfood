@@ -1,0 +1,81 @@
+@startuml
+actor Client
+boundary Interface
+control Controle
+entity Order
+entity OrderLine
+entity Product
+actor Bank
+== Constituer panier : ajouter / modifier quantité produit ==
+loop
+Client -> Interface : Ajouter / modifier quantité
+hnote right : ** Carte **
+Interface -> Controle : insertUpdateProductOrder(sessionId, productId, quantity)
+Controle -> Order : hasBasketInProgress(sessionId)
+alt true
+Order --> Controle : orderId
+else false
+Order --> Controle : false
+Controle -> Order : createOrder(sessionId)
+Order --> Controle : orderId
+end
+Controle -> Product : getProduct(productId)
+Product --> Controle : productObj
+Controle -> OrderLine : insertUpdateOrderLine(orderId, productId, productPrice, quantity)
+OrderLine --> Controle : orderlineId
+Controle --> Interface : redirect() vers Carte
+hnote left: **Carte**
+Interface --> Client : message produit ajouté / quantité modifiée
+end
+== Constituer panier : Supprimer un produit du panier ==
+loop
+Client -> Interface : Supprimer un produit du panier
+Interface -> Controle : deleteProductOrder(productId)
+Controle -> Order : getOrder(sessioId)
+Order -->Controle : orderId
+Controle -> OrderLine : deleteOrderLine(orderId, productId)
+OrderLine --> Controle : orderlineId
+Controle --> Interface : redirect() vers Carte
+hnote left: **Carte**
+Interface --> Client : message produit supprimé
+end 
+== Commander : Etape livraison ==
+Client -> Interface : Valider commande
+Interface -> Controle : orderValid(orderId)
+alt if (UserLoggedIn() == FALSE)
+Controle -> Interface : redirect(currenturl, orderId) Authentification
+ref over Client, Interface : Authentification
+Interface --> Controle : userId
+end
+Controle -> Order : updateOrder(step, orderId, userId)
+Order --> Controle : orderId
+Controle -> Interface : redirect() tunnel achat step livraison
+hnote left : tunnel de commande étape livraison
+Interface --> Client : Affichage du formulaire de livraison
+Client -> Interface : Saisie des information de livraison
+Interface -> Controle : SetOrderDeliery(orderId, data[])
+Controle -> Order : updateOrder(orderId, data[])
+Order --> Controle : orderId
+loop IF BANK RESPONSE == KO
+Controle --> Interface : redirect() page de confirmation de paiement
+Interface --> Client : Bouton confirmation de paiement
+Client -> Interface : Confirmation de paiement
+Interface -> Controle : OrderPaymentUpdate()
+Controle -> Controle : Payment Request Set Url
+Controle -> Bank : redirect() page de paiement de la banque
+hnote right : Page de paiement de la banque
+Bank --> Client : Affichage du formulaire de paiement
+Client -> Bank : Saisie des informations de paiement
+Bank --> Interface : Bank Response on url Calbback
+Interface -> Controle : OrderPaymentUpdate()
+Controle -> Order : updateOrder(orderId, data[])
+Order --> Controle : orderId
+alt IF BANK RESPONSE == "KO" 
+Controle -> Interface : redirect to payment page
+Interface --> Client : message paiement KO 
+else RESPONSE == "OK"
+Controle -> Interface : redirect to commands list
+ref over Client, Interface : Liste des commandes
+end
+end
+@enduml
