@@ -1,0 +1,29 @@
+@startuml
+actor Client
+boundary Interface 
+control Controle
+entity Order
+entity OrderLine
+entity Inventory
+actor DeliveryMan
+== Envoi des commandes aux livreurs ==
+loop Every 3 min
+Interface -> Controle : Sendorders()
+Controle -> Order : GetAllPendingOrders
+Order --> Controle : Orders[]
+loop Fetch all pending orders
+Controle -> DeliveryMan : Get closer delivery man (not contacted yet)
+DeliveryMan --> Inventory : Inventory[]
+Inventory --> OrderLine : product[]
+OrderLine --> Order : orderLine[]
+DeliveryMan --> Controle : DeliveryMan[]
+Controle -> DeliveryMan : Push order
+end
+end
+== Prise en charge d'une commande par un livreur ==
+DeliveryMan -> Interface : Prise en charge de la commande
+Interface -> Controle : DeliveryManTakeOrder(orderId, deliveryTime)
+Controle -> Order : updateOrder(orderId, deliveryManId, status = 'delivery_pending', estimatedDeliveryTime)
+Order --> Controle : orderId
+Controle -> Client : Push delivery time
+@enduml
