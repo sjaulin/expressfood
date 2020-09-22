@@ -1,4 +1,5 @@
 @startuml
+title Livraison d'une commande
 actor Client
 boundary Interface 
 control Controle

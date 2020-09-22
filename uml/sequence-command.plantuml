@@ -1,4 +1,5 @@
 @startuml
+title Création d'une commande
 actor Client
 boundary Interface
 control Controle
