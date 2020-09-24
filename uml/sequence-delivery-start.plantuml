@@ -1,0 +1,16 @@
+@startuml
+title Livraison d'une commande : Prise en charge de la livraison
+actor DeliveryMan
+boundary Application 
+control Server
+entity Order
+actor Client
+DeliveryMan -> Application : Prise en charge de la commande saisie du temps
+Application -> Server : DeliveryManTakeOrder(orderId, deliveryTime)
+Server -> Order : updateOrder(orderId, deliveryManId, status = 'delivery_pending', estimatedDeliveryTime)
+Order --> Server : orderId
+Server -> Application : OK
+Application --> DeliveryMan : Ok, GO !
+Server -> Application : Push delivery time
+Application -> Client : Notification delivery time
+@enduml

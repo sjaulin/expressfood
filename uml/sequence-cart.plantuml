@@ -1,0 +1,42 @@
+@startuml
+title Création d'une commande : Constituer son panier
+actor Client
+collections Application
+control Server
+database Order
+database OrderLine
+database Product
+== Ajouter / modifier quantité produit ==
+loop
+Client -> Application : Ajouter / modifier quantité
+hnote right : ** Liste des plats **
+Application -> Server : insertUpdateProductOrder(sessionId, productId, quantity)
+Server -> Order : hasBasketInProgress(sessionId)
+alt true
+Order --> Server : orderId
+else false
+Order --> Server : false
+Server -> Order : createOrder(sessionId, status = 'new')
+Order --> Server : orderId
+end
+Server -> Product : getProduct(productId)
+Product --> Server : productObj
+Server -> OrderLine : insertUpdateOrderLine(orderId, productId, productPrice, quantity)
+OrderLine --> Server : orderlineId
+Server --> Application : redirect() vers liste des plats
+hnote left: ** Liste des plats **
+Application --> Client : message produit ajouté / quantité modifiée
+end
+== Supprimer un produit du panier ==
+loop
+Client -> Application : Supprimer un produit du panier
+Application -> Server : deleteProductOrder(productId)
+Server -> Order : getOrder(sessioId)
+Order -->Server : orderId
+Server -> OrderLine : deleteOrderLine(orderId, productId)
+OrderLine --> Server : orderlineId
+Server --> Application : redirect() vers Liste des plats
+hnote left: ** Liste des plats **
+Application --> Client : message produit supprimé
+end 
+@enduml

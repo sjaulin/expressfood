@@ -1,86 +1,52 @@
 @startuml
-title Création d'une commande
+title Création d'une commande : Valider la commande
 actor Client
-boundary Interface
-control Controle
-entity Order
-entity OrderLine
-entity Product
-actor Bank
-== Constituer panier : ajouter / modifier quantité produit ==
-loop
-Client -> Interface : Ajouter / modifier quantité
-hnote right : ** Carte **
-Interface -> Controle : insertUpdateProductOrder(sessionId, productId, quantity)
-Controle -> Order : hasBasketInProgress(sessionId)
-alt true
-Order --> Controle : orderId
-else false
-Order --> Controle : false
-Controle -> Order : createOrder(sessionId, status = 'new')
-Order --> Controle : orderId
-end
-Controle -> Product : getProduct(productId)
-Product --> Controle : productObj
-Controle -> OrderLine : insertUpdateOrderLine(orderId, productId, productPrice, quantity)
-OrderLine --> Controle : orderlineId
-Controle --> Interface : redirect() vers Carte
-hnote left: **Carte**
-Interface --> Client : message produit ajouté / quantité modifiée
-end
-== Constituer panier : Supprimer un produit du panier ==
-loop
-Client -> Interface : Supprimer un produit du panier
-Interface -> Controle : deleteProductOrder(productId)
-Controle -> Order : getOrder(sessioId)
-Order -->Controle : orderId
-Controle -> OrderLine : deleteOrderLine(orderId, productId)
-OrderLine --> Controle : orderlineId
-Controle --> Interface : redirect() vers Carte
-hnote left: **Carte**
-Interface --> Client : message produit supprimé
-end 
-== Commander ==
-Client -> Interface : Valider commande
-Interface -> Controle : orderValid(orderId) 
-Controle -> Order : updateOrder(orderId, userId, status = 'waiting_user')
+collections Application
+control Server
+database Order
+boundary Bank
+Client -> Application : Valider commande
+hnote right : ** Liste des plats **
+Application -> Server : orderValid(orderId) 
+Server -> Order : updateOrder(orderId, userId, status = 'waiting_user')
 alt if (UserLoggedIn() == FALSE)
-Controle -> Interface : redirect(currenturl, orderId) Authentification
-ref over Client, Interface : Authentification
-Interface --> Controle : userId
+Server -> Application : redirect(currenturl, orderId) Authentification
+ref over Client, Application : Authentification
+Application --> Server : userId
 end
-Controle -> Order : updateOrder(orderId, userId, status = 'waiting_address')
-Order --> Controle : orderId
-Controle -> Interface : redirect() tunnel achat step livraison
-hnote left : tunnel de commande étape livraison
-Interface --> Client : Affichage du formulaire de livraison
-Client -> Interface : Saisie des information de livraison
-Interface -> Controle : SetOrderDeliery(orderId, data[])
-Controle -> Order : updateOrder(orderId, address_data[], status = 'waiting_payment')
-Order --> Controle : orderId
+Server -> Order : updateOrder(orderId, userId, status = 'waiting_address')
+Order --> Server : orderId
+Server -> Application : redirect() Etape livraison
+hnote left : **Etape livraison**
+Application --> Client : Affichage du formulaire de livraison
+Client -> Application : Saisie des information de livraison
+Application -> Server : SetOrderDeliery(orderId, data[])
+Server -> Order : updateOrder(orderId, address_data[], status = 'waiting_payment')
+Order --> Server : orderId
 loop IF BANK RESPONSE == KO
-Controle -> Interface : redirect() page de confirmation de paiement
-Interface --> Client : Bouton confirmation de paiement
-Client -> Interface : Saisie infos carte de paiement
-Interface -> Controle : OrderPaymentUpdate()
-Controle -> Controle : Payment Request Set Url
-Controle -> Bank : redirect() page de paiement de la banque
-hnote right : Page de paiement de la banque
+Server -> Application : redirect() page de confirmation de paiement
+Application --> Client : Bouton confirmation de paiement
+Client -> Application : Bouton payer !
+Application -> Server : OrderPaymentUpdate()
+Server -> Order : updateOrder(orderId, address_data[], status = 'waiting_payment')
+Order -> Server : OrderId
+Server -> Application : Payment Request Set Url
+Application -> Bank : redirect() page de paiement de la banque
+hnote right : **Page de paiement de la banque**
 Bank --> Client : Affichage du formulaire de paiement
 Client -> Bank : Saisie des informations de paiement
-Bank --> Interface : Bank Response on url Callbback
-Interface -> Controle : OrderPaymentUpdate()
+Bank --> Server : Bank Response on url Callbback
 alt IF BANK RESPONSE == "KO" 
-Controle -> Order : updateOrder(orderId, payment_data[], status = 'payment_ko')
-Order --> Controle : orderId
-Controle -> Interface : redirect to payment page
-Interface --> Client : message paiement KO 
+Server -> Order : updateOrder(orderId, payment_data[], status = 'payment_ko')
+Order --> Server : orderId
+Server -> Application : redirect to payment page
+Application --> Client : message paiement KO 
 else RESPONSE == "OK"
-Controle -> Order : updateOrder(orderId, payment_data[], status = 'waiting_delivery_man')
-Order --> Controle : orderId
-Controle -> Interface : redirect to commands list
-Interface --> Client : Message d'atente réponse livreur
-ref over Client, Interface : Liste des commandes
+Server -> Order : updateOrder(orderId, payment_data[], status = 'waiting_delivery_man')
+Order --> Server : orderId
+Server -> Application : redirect to commands list
+Application --> Client : Message d'atente réponse livreur
+ref over Client, Application : Liste des commandes
 end
 end
 @enduml

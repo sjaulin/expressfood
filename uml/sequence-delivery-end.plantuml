@@ -1,0 +1,17 @@
+@startuml
+actor DeliveryMan
+actor Client
+collections Application
+control Server
+database Order
+DeliveryMan -> Application : Confirmer la livraison
+Application -> Server : DeliveryManDeliveryConfirm(orderId)
+Server -> Order : updateOrder(orderId, deliveryManId, status = 'delivery_waiting_confirm')
+Order --> Server : orderId
+Server --> Application : OK 1/2
+Client -> Application : Confirmer la livraison
+Application -> Server : ClientDeliveryConfirm(orderId)
+Server -> Order : updateOrder(orderId, deliveryManId, status = 'ok')
+Order --> Server : orderId
+Server --> Application : OK 2/2
+@enduml
