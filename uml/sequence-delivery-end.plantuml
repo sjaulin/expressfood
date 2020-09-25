@@ -4,14 +4,17 @@ actor Client
 collections Application
 control Server
 database Order
+database DeliveryManInventory
 DeliveryMan -> Application : Confirmer la livraison
 Application -> Server : DeliveryManDeliveryConfirm(orderId)
-Server -> Order : updateOrder(orderId, deliveryManId, status = 'delivery_waiting_confirm')
+Server -> Order : updateOrder(orderId, deliveryManId, status = 'waiting_delivery_confirmation')
 Order --> Server : orderId
 Server --> Application : OK 1/2
 Client -> Application : Confirmer la livraison
 Application -> Server : ClientDeliveryConfirm(orderId)
 Server -> Order : updateOrder(orderId, deliveryManId, status = 'ok')
 Order --> Server : orderId
+Server -> Order : updateOrder(orderId, deliveryManId, status = 'ok', DeliveryTime) 
+Server -> DeliveryManInventory : updateInventory()
 Server --> Application : OK 2/2
 @enduml
