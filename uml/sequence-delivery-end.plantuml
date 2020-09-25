@@ -1,4 +1,5 @@
 @startuml
+title Fin de la livraison
 actor DeliveryMan
 actor Client
 collections Application
