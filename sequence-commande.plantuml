@@ -1,0 +1,43 @@
+@startuml
+title Création d'une commande
+actor Client
+collections Plats 
+collections Commande
+actor Banque
+loop
+Client -> Plats : Consulter les plats
+Plats --> Client : Liste des plats
+Client -> Plats : Ajouter / supprimer un plat dans la commande
+Plats -> Commande : Mise à jour la commande
+Commande --> Client : Affiche le montant de la commande
+end
+Client -> Commande : Valider la commande
+alt si pas authentifié
+    alt si nouveau client
+    Commande --> Client : formulaire de création de compte
+    Client -> Commande : Saisir : email & mot de passe & n° de téléphone & adresse complète
+    Commande --> Client : Demande de vérification par email
+    Client -> Commande : Cliquer sur le lien de vérification par email
+    else si déjà client
+    Commande --> Client : formulaire d'authentification
+    Client -> Commande : Saisir : email & mot de passe
+    end
+end
+Commande --> Client : Formulaire de renseignement des infos. de livraison
+alt nouvelle adresse (jamais commandé à cette adresse)
+Client -> Commande :  Saisir l'adresse complète
+else adresse déjà référencée
+Client -> Commande : Selectionner une adresse
+end
+Commande -> Banque : Redirection vers la banque
+Banque --> Client : Formulaire de paiement
+Client -> Banque : Saisir informations de carte bancaire
+alt paiement ko
+Banque --> Commande : Information de paiement ko
+Commande --> Client : Message paiement ko puis redirection à l'étape du formulaire de paiement
+hnote right : ** FIN**
+end
+Banque --> Commande : information de paiment Ok 
+Commande -> Client : Redirection vers les commandes en cours et message de confirmation de commande
+Commande -> Client : Mail de confirmation de commande
+@enduml
