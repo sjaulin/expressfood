@@ -20,11 +20,12 @@ hnote right : ** FIN - retour au début de la séquence**
 else Mission acceptée
 Livreur -> Commandes : Accepter la mission
 Commandes --> Livreur : Mise à jour du statut du livreur = En cours de livraison
-Commandes --> Client : Notification client
+Commandes -> Manager : Notification au manager
+Commandes -> Client : Notification au client
 end
 == ... Livreur en cours de livraison ... ==
 Livreur -> Commandes : Confirmer la livraison
-Commandes --> InventaireLiveur : Mise à jour de l'inventaire
-Commandes --> Livreur : Mise à jour du statut du livreur = Disponible
+Commandes -> InventaireLiveur : Mise à jour de l'inventaire
+Commandes -> Livreur : Mise à jour du statut du livreur = Disponible
 
 @enduml

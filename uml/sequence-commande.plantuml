@@ -7,11 +7,11 @@ actor Banque
 loop
 Client -> Plats : Consulter les plats
 Plats --> Client : Liste des plats
-Client -> Plats : Ajouter / supprimer un plat dans la commande
-Plats -> Commande : Mise à jour la commande
-Commande --> Client : Affiche le montant de la commande
+Client -> Plats : Ajouter / supprimer un plat dans le panier
+Plats -> Commande : Mise à jour le panier
+Commande --> Client : Affiche le montant du panier
 end
-Client -> Commande : Valider la commande
+Client -> Commande : Valider le panier
 alt si pas authentifié
     alt si nouveau client
     Commande --> Client : formulaire de création de compte
@@ -29,15 +29,16 @@ Client -> Commande :  Saisir l'adresse complète
 else adresse déjà référencée
 Client -> Commande : Selectionner une adresse
 end
+Commande --> Client : Formulaire de validation du paiement
+Client -> Commande : Confirmer le choix de paiement par CB
 Commande -> Banque : Redirection vers la banque
-Banque --> Client : Formulaire de paiement
+Banque --> Client : Formulaire de saisie des infos. carte bleue
 Client -> Banque : Saisir informations de carte bancaire
-alt paiement ko
-Banque --> Commande : Information de paiement ko
-Commande --> Client : Message paiement ko puis redirection à l'étape paiement
+alt paiement refusé par la banque
+Commande --> Client : Message paiement refusé puis redirection à l'étape de validation du paiement
 hnote right : ** FIN - retour à l'étape paiement **
 end
 Banque --> Commande : information de paiment Ok 
-Commande -> Client : Redirection vers les commandes en cours et message de confirmation de commande
+Commande -> Client : Redirection vers l'historique des commandes et message de confirmation de commande
 Commande -> Client : Mail de confirmation de commande
 @enduml
