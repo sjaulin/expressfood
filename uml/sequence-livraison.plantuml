@@ -1,0 +1,29 @@
+@startuml
+actor Client
+actor Manager
+collections Commandes 
+collections Plats 
+collections InventaireLiveur
+actor Livreur
+Commandes --> Manager : Reception d'une commande
+Manager -> Commandes : Consulter la commande
+Commandes -> Plats : Consulter les plats associés
+Plats -> InventaireLiveur : Intéroger inventaire des livreurs
+InventaireLiveur -> Livreur : Lister les livreurs disponibles
+Livreur --> Manager : Liste des livreurs disponibles
+Manager -> Livreur : Selectionner un livreur et envoyer mission
+alt Mission refusée
+Livreur -> Commandes : Refuser la mission
+Commandes --> Manager : Notification mission refusée retour au début
+hnote right : ** FIN - retour au début de la séquence**
+else Mission acceptée
+Livreur -> Commandes : Accepter la mission
+Commandes --> Livreur : Mise à jour du statut du livreur = En cours de livraison
+Commandes --> Client : Notification client
+end
+== ... Livreur en cours de livraison ... ==
+Livreur -> Commandes : Confirmer la livraison
+Commandes --> InventaireLiveur : Mise à jour de l'inventaire
+Commandes --> Livreur : Mise à jour du statut du livreur = Disponible
+
+@enduml

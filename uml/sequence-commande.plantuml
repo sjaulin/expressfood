@@ -34,8 +34,8 @@ Banque --> Client : Formulaire de paiement
 Client -> Banque : Saisir informations de carte bancaire
 alt paiement ko
 Banque --> Commande : Information de paiement ko
-Commande --> Client : Message paiement ko puis redirection à l'étape du formulaire de paiement
-hnote right : ** FIN**
+Commande --> Client : Message paiement ko puis redirection à l'étape paiement
+hnote right : ** FIN - retour à l'étape paiement **
 end
 Banque --> Commande : information de paiment Ok 
 Commande -> Client : Redirection vers les commandes en cours et message de confirmation de commande
