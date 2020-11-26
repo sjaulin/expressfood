@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
--- Hôte : db
--- Généré le : mar. 06 oct. 2020 à 17:25
--- Version du serveur :  8.0.21
--- Version de PHP : 7.4.9
+-- Hôte : mysql
+-- Généré le : jeu. 26 nov. 2020 à 11:15
+-- Version du serveur :  10.1.48-MariaDB-1~bionic
+-- Version de PHP : 7.4.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,20 +18,20 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `myDb`
+-- Base de données : `expressfood`
 --
 
 DELIMITER $$
 --
 -- Procédures
 --
-CREATE DEFINER=`user`@`%` PROCEDURE `montant_commandes` ()  NO SQL
+CREATE DEFINER=`root`@`%` PROCEDURE `montant_commandes` ()  NO SQL
 SELECT 
 order_line.order_id id_commande,
 ROUND(SUM(order_line.quantity * (order_line.price_excl_tax + (order_line.price_excl_tax * order_line.tax100 / 100))), 2) prix_ttc FROM order_line
 GROUP by order_line.order_id$$
 
-CREATE DEFINER=`user`@`%` PROCEDURE `produits_a_livrer` ()  NO SQL
+CREATE DEFINER=`root`@`%` PROCEDURE `produits_a_livrer` ()  NO SQL
 SELECT 
 `order`.id id_commande,
 order_status.code statut_commande,
@@ -41,7 +41,7 @@ INNER JOIN `order` on `order`.id = order_line.order_id
 INNER JOIN order_status on order_status.id = `order`.`order_status_id`
 WHERE order_status.code != "ok"$$
 
-CREATE DEFINER=`user`@`%` PROCEDURE `statut_commandes` ()  NO SQL
+CREATE DEFINER=`root`@`%` PROCEDURE `statut_commandes` ()  NO SQL
 SELECT 
 order.id, 
 client.lastname nom_client,
@@ -63,8 +63,8 @@ DELIMITER ;
 --
 
 CREATE TABLE `delivery_man_status` (
-  `id` int NOT NULL,
-  `name` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `name` varchar(45) COLLATE latin1_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -83,10 +83,10 @@ INSERT INTO `delivery_man_status` (`id`, `name`) VALUES
 --
 
 CREATE TABLE `inventory` (
-  `id` int NOT NULL,
-  `user_id` int NOT NULL,
-  `product_id` int NOT NULL,
-  `quantity` int NOT NULL
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -104,16 +104,16 @@ INSERT INTO `inventory` (`id`, `user_id`, `product_id`, `quantity`) VALUES
 --
 
 CREATE TABLE `order` (
-  `id` int NOT NULL,
-  `client_id` int NOT NULL,
+  `id` int(11) NOT NULL,
+  `client_id` int(11) NOT NULL,
   `create_datetime` datetime NOT NULL,
-  `address` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `zipcode` char(5) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `city` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `order_status_id` int NOT NULL,
-  `estimated_delivery_time` int DEFAULT NULL,
-  `delivery_time` int DEFAULT NULL,
-  `delivery_man_id` int DEFAULT NULL
+  `address` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `zipcode` char(5) COLLATE latin1_general_ci NOT NULL,
+  `city` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `order_status_id` int(11) NOT NULL,
+  `estimated_delivery_time` int(11) DEFAULT NULL,
+  `delivery_time` int(11) DEFAULT NULL,
+  `delivery_man_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -132,11 +132,11 @@ INSERT INTO `order` (`id`, `client_id`, `create_datetime`, `address`, `zipcode`,
 --
 
 CREATE TABLE `order_line` (
-  `id` int NOT NULL,
-  `order_id` int NOT NULL,
-  `product_id` int NOT NULL,
-  `name` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
-  `quantity` int DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `name` varchar(45) COLLATE latin1_general_ci DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
   `price_excl_tax` float DEFAULT NULL,
   `tax100` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
@@ -159,8 +159,8 @@ INSERT INTO `order_line` (`id`, `order_id`, `product_id`, `name`, `quantity`, `p
 --
 
 CREATE TABLE `order_status` (
-  `id` int NOT NULL,
-  `code` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `code` varchar(45) COLLATE latin1_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -185,10 +185,10 @@ INSERT INTO `order_status` (`id`, `code`) VALUES
 --
 
 CREATE TABLE `order_status_history` (
-  `id` int NOT NULL,
-  `order_id` int NOT NULL,
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
   `status_datetime` datetime NOT NULL,
-  `order_status_id` int NOT NULL
+  `order_status_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -209,9 +209,9 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `status_datetime`, `order_
 --
 
 CREATE TABLE `picture` (
-  `id` int NOT NULL,
-  `product_id` int NOT NULL,
-  `filepath` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `filepath` varchar(255) COLLATE latin1_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 -- --------------------------------------------------------
@@ -221,8 +221,8 @@ CREATE TABLE `picture` (
 --
 
 CREATE TABLE `product` (
-  `id` int NOT NULL,
-  `name` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `id` int(11) NOT NULL,
+  `name` varchar(45) COLLATE latin1_general_ci NOT NULL,
   `product_datetime` date NOT NULL,
   `price_excl_taxe` float NOT NULL,
   `taxe100` float NOT NULL
@@ -249,8 +249,8 @@ INSERT INTO `product` (`id`, `name`, `product_datetime`, `price_excl_taxe`, `tax
 --
 
 CREATE TABLE `role` (
-  `id` int NOT NULL,
-  `name` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL
+  `id` int(11) NOT NULL,
+  `name` varchar(45) COLLATE latin1_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -268,13 +268,13 @@ INSERT INTO `role` (`id`, `name`) VALUES
 --
 
 CREATE TABLE `user` (
-  `id` int NOT NULL,
-  `role_id` int NOT NULL,
-  `firstname` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `lastname` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `password` char(128) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `email` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `delivery_man_status_id` int DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `role_id` int(11) NOT NULL,
+  `firstname` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `lastname` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `password` char(128) COLLATE latin1_general_ci NOT NULL,
+  `email` varchar(255) COLLATE latin1_general_ci NOT NULL,
+  `delivery_man_status_id` int(11) DEFAULT NULL,
   `current_lat` float(10,6) DEFAULT NULL,
   `current_lng` float(10,6) DEFAULT NULL,
   `current_last_update` datetime DEFAULT NULL
@@ -297,13 +297,13 @@ INSERT INTO `user` (`id`, `role_id`, `firstname`, `lastname`, `password`, `email
 --
 
 CREATE TABLE `user_address` (
-  `id` int NOT NULL,
-  `user_id` int NOT NULL,
-  `address1` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `address2` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
-  `zipcode` int NOT NULL,
-  `city` varchar(45) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
-  `default_adrress` tinyint NOT NULL
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `address1` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `address2` varchar(45) COLLATE latin1_general_ci DEFAULT NULL,
+  `zipcode` int(11) NOT NULL,
+  `city` varchar(45) COLLATE latin1_general_ci NOT NULL,
+  `default_adrress` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -405,67 +405,67 @@ ALTER TABLE `user_address`
 -- AUTO_INCREMENT pour la table `delivery_man_status`
 --
 ALTER TABLE `delivery_man_status`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `inventory`
 --
 ALTER TABLE `inventory`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `order`
 --
 ALTER TABLE `order`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `order_line`
 --
 ALTER TABLE `order_line`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT pour la table `order_status`
 --
 ALTER TABLE `order_status`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT pour la table `picture`
 --
 ALTER TABLE `picture`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `product`
 --
 ALTER TABLE `product`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `role`
 --
 ALTER TABLE `role`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `user_address`
 --
 ALTER TABLE `user_address`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Contraintes pour les tables déchargées
