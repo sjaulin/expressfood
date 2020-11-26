@@ -1,16 +1,5 @@
 version: '3'
 services:
-    php-apache:
-        build: .
-        environment:
-            XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
-        ports:
-            - 80:80
-        volumes:
-            - ./DocumentRoot:/var/www/html:z
-        links:
-            - 'mariadb'
-
     mariadb:
         image: mariadb:10.1
         volumes:
