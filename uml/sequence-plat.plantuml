@@ -1,16 +1,16 @@
 @startuml
 title Ajout d’un plat du jour
-actor Manager
+actor Admin
 collections Plats 
-Manager -> Plats : Ajouter un plat du jour
-Plats --> Manager : Liste des plats déjà existants
+Admin -> Plats : Ajouter un plat du jour
+Plats --> Admin : Liste des plats déjà existants
 alt Plat déjà existant
-Manager -> Plats : Selectionner un plat
+Admin -> Plats : Selectionner un plat
 else Nouveau plat
-Manager -> Plats : Créer un nouveau plat
-Plats --> Manager : Formulaire de création de plat
-Manager -> Plats : Saisie du nom, prix, photo...
+Admin -> Plats : Créer un nouveau plat
+Plats --> Admin : Formulaire de création de plat
+Admin -> Plats : Saisie du nom, prix, photo...
 end
-Plats --> Manager : Confirmation du choix du plat du jour
+Plats --> Admin : Confirmation du choix du plat du jour
 
 @enduml
